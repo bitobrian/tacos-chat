@@ -1,0 +1,122 @@
+﻿@namespace TacosChatCore.Components
+@inject ILocalStorageService _localStorage
+@inject NavigationManager _navigationManager
+
+<div class="window" style="width: 100%; height: 500px;">
+    <div class="title-bar">
+        <div class="title-bar-text">Twitch Chat - @_messages.Count Messages</div>
+        <div class="title-bar-controls">
+            <button aria-label="Help" @onclick="GoToSettings"></button>
+            <button aria-label="Minimize"></button>
+            <button aria-label="Maximize"></button>
+            <button aria-label="Close" @onclick="() => AddChatMessage(doIt)"></button>
+        </div>
+    </div>
+    <div class="window-body" style="height: 100%;">
+        @if (!_isErrorState)
+        {
+            <ul class="tree-view" style="height: 90%; overflow-y: scroll;">
+                @foreach (var chatMessage in _messages)
+                {
+                    <li>
+                        @chatMessage.Timestamp.ToString("hh:mm:ss"): @chatMessage.Message
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p>Unable to load settings from local storage.</p>
+        }
+    </div>
+</div>
+
+@code
+{
+    private List<TacosChatMessage> _messages = new();
+    private int _messageCountMax = 30;
+    private TacosSettings _settings = new();
+    private bool _isErrorState = false;
+    private TwitchClient _client;
+    private string doIt = "do it";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var settings = await _localStorage.GetItemAsync<TacosSettings>("TacosSettings");
+
+            if (settings != null)
+            {
+                LogMessage("Settings not null");
+
+                _settings = settings;
+
+                var credentials = new ConnectionCredentials(_settings.TwitchUserName, _settings.TwitchUserAccessToken);
+                var options = new ClientOptions
+                    {
+                        MessagesAllowedInPeriod = 750,
+                        ThrottlingPeriod = TimeSpan.FromSeconds(30),                        
+                    };
+
+                _client = new TwitchClient(new WebSocketClient(options));
+
+                LogMessage("Initializing Twitch");
+                _client.Initialize(credentials, "bitobrian");
+
+                LogMessage("Initializing Twitch - OnMessageRec");
+                _client.OnMessageReceived += (sender, e) =>
+                {
+                    var chatUser = e.ChatMessage.DisplayName;
+
+                    var message = $"{chatUser} says, \"{e.ChatMessage.Message}\"";
+
+                    AddChatMessage(message);
+                };
+
+                LogMessage("Initializing Twitch - OnConnected");
+                _client.OnConnected += (sender, e) =>
+                {
+                    LogMessage("Connected to Twitch");
+                };
+
+                LogMessage("Initializing Twitch - OnDisconnected");
+                _client.OnDisconnected += (sender, e) =>
+                {
+                    LogMessage("Disconnected from Twitch");
+                };
+
+                _client.Connect();
+            }
+            else
+            {
+                _isErrorState = true;
+            }
+
+            InvokeAsync(StateHasChanged);
+        }
+    }
+
+    void AddChatMessage(string message)
+    {
+        _messages.Add(new TacosChatMessage(DateTime.Now, message));
+
+        // Only keep the last 25 messages
+        if (_messages.Count > _messageCountMax)
+        {
+            _messages.RemoveRange(0, _messages.Count - _messageCountMax);
+        }
+
+        InvokeAsync(StateHasChanged);
+    }
+
+    void GoToSettings()
+    {
+        _navigationManager.NavigateTo("/settings");
+    }
+
+    void LogMessage(string message)
+    {
+        _messages.Add(new TacosChatMessage(DateTime.Now, message));
+    }
+}
