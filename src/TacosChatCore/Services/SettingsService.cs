@@ -1,6 +1,7 @@
-namespace TacosChatCore.Models;
+namespace TacosChatCore.Services;
 
-public class TacosSettings {
+public class SettingsService
+{
     public string TwitchClientId { get; set; } = "";
     public string TwitchClientSecret { get; set; } = "";
     public string TwitchUserAccessToken { get; set; } = "";

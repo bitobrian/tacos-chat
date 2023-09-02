@@ -1,6 +1,5 @@
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 using Blazored.LocalStorage;
+using TacosChatCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddBlazoredLocalStorage();
+builder.Services.AddCoreServices();
 
 var app = builder.Build();
 

@@ -35,24 +35,19 @@
 {
     private List<TacosChatMessage> _messages = new();
     private int _messageCountMax = 30;
-    private TacosSettings _settings = new();
     private bool _isErrorState = false;
-    private TwitchClient _client;
+    private TwitchClient _client = new();
     private string doIt = "do it";
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            var settings = await _localStorage.GetItemAsync<TacosSettings>("TacosSettings");
-
-            if (settings != null)
+            if (!string.IsNullOrEmpty(TacosSettings.TwitchUserAccessToken))
             {
                 LogMessage("Settings not null");
 
-                _settings = settings;
-
-                var credentials = new ConnectionCredentials(_settings.TwitchUserName, _settings.TwitchUserAccessToken);
+                var credentials = new ConnectionCredentials(TacosSettings.TwitchUserName, TacosSettings.TwitchUserAccessToken);
                 var options = new ClientOptions
                     {
                         MessagesAllowedInPeriod = 750,
