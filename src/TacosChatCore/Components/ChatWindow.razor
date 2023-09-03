@@ -1,0 +1,153 @@
+﻿@namespace TacosChatCore.Components
+@inject ILocalStorageService _localStorage
+@inject NavigationManager _navigationManager
+@inject IJSRuntime _jsRuntime
+
+<div class="window" style="@_windowStyleCss">
+    <div class="title-bar">
+        <div class="title-bar-text">Twitch Chat - @_messages.Count Messages</div>
+        <div class="title-bar-controls">
+            <button aria-label="Help" @onclick="GoToSettings"></button>
+            <button aria-label="Minimize"></button>
+            <button aria-label="Maximize"></button>
+            <button aria-label="Close" @onclick="() => AddChatMessage(string.Empty, doIt)"></button>
+        </div>
+    </div>
+    <div class="window-body" style="height: 100%;">
+        @if (!_isErrorState)
+        {
+            <ul class="tree-view" style="height: 90%; overflow-y: scroll;">
+                @foreach (var chatMessage in _messages)
+                {
+                    <li>
+                        <div style="font-size: 12px;">
+                            <span style="color: red">
+                                @if(chatMessage.UserName != string.Empty){
+                                    @chatMessage.UserName
+                                }
+                                else{
+                                    <span>System</span>
+                                }
+                                </span>
+                            <span> says, "</span>
+                            <span style="color: blue">@chatMessage.Message</span>
+                            <span>"</span>
+                        </div>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p>Unable to load settings from local storage.</p>
+        }
+    </div>
+</div>
+
+@code
+{
+    private List<TacosChatMessage> _messages = new();
+    private int _messageCountMax = 25;
+    private bool _isErrorState = false;
+    private TwitchClient _client = new();
+    private string doIt = "do it";
+    private Emoji emoji = new();
+    private string _windowStyleCss = "width: 100%; height: 100%;";
+    private int _calculatedWindowHeight = 0;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var windowWidth = await _jsRuntime.InvokeAsync<int>("returnWindowWidth");
+            var windowHeight = await _jsRuntime.InvokeAsync<int>("returnWindowHeight");
+            await _jsRuntime.InvokeVoidAsync("console.log", $"{windowWidth} x {windowHeight}");
+
+            _windowStyleCss = $"width: 100%; height: {windowHeight}px;";
+
+            if (!string.IsNullOrEmpty(TacosSettings.TwitchUserAccessToken))
+            {
+                LogMessage("Settings not null");
+
+                var credentials = new ConnectionCredentials(TacosSettings.TwitchUserName, TacosSettings.TwitchUserAccessToken);
+                var options = new ClientOptions
+                    {
+                        MessagesAllowedInPeriod = 750,
+                        ThrottlingPeriod = TimeSpan.FromSeconds(30),                        
+                    };
+
+                _client = new TwitchClient(new WebSocketClient(options));
+
+                LogMessage("Initializing Twitch");
+                _client.Initialize(credentials, "bitobrian");
+
+                LogMessage("Initializing Twitch - OnMessageRec");
+                _client.OnMessageReceived += (sender, e) =>
+                {
+                    var chatUser = e.ChatMessage.DisplayName;
+
+                    var message = e.ChatMessage.Message;
+
+                    // regex the message for common emoji text and get from emoji class
+                    var emojiMatches = System.Text.RegularExpressions.Regex.Matches(message, @":.");
+
+                    if(emojiMatches.Count > 0)
+                    {
+                        foreach (System.Text.RegularExpressions.Match match in emojiMatches)
+                        {
+                            var emojiText = match.Value;
+                            var emojiValue = string.Empty;
+                            emoji.Source.TryGetValue(emojiText, out emojiValue);
+                            message = message.Replace(emojiText, emojiValue);
+                        }
+                    }
+
+                    AddChatMessage(chatUser, message);
+                };
+
+                LogMessage("Initializing Twitch - OnConnected");
+                _client.OnConnected += (sender, e) =>
+                {
+                    LogMessage("Connected to Twitch");
+                };
+
+                LogMessage("Initializing Twitch - OnDisconnected");
+                _client.OnDisconnected += (sender, e) =>
+                {
+                    LogMessage("Disconnected from Twitch");
+                };
+
+                _client.Connect();
+            }
+            else
+            {
+                _isErrorState = true;
+            }
+
+            InvokeAsync(StateHasChanged);
+        }
+    }
+
+    void AddChatMessage(string userName, string message)
+    {
+        _messages.Add(new TacosChatMessage(DateTime.Now, userName, message));
+
+        // Only keep the last 25 messages
+        if (_messages.Count > _messageCountMax)
+        {
+            _messages.RemoveRange(0, _messages.Count - _messageCountMax);
+        }
+
+        InvokeAsync(StateHasChanged);
+    }
+
+    void GoToSettings()
+    {
+        _navigationManager.NavigateTo("/settings");
+    }
+
+    void LogMessage(string message)
+    {
+        _messages.Add(new TacosChatMessage(DateTime.Now, string.Empty, message));
+    }
+}
