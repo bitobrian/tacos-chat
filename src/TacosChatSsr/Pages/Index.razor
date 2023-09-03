@@ -1,5 +1,22 @@
 ﻿@page "/"
+@inject NavigationManager _navigationManager
 
 <PageTitle>Index</PageTitle>
 
-<ChatWindow/>
+<h2>Go to /settings or /overlay</h2>
+
+<button @onclick="GoToOverlay">Overlay</button>
+<button @onclick="GoToSettings">Settings</button>
+
+@code 
+{
+    private void GoToOverlay()
+    {
+        _navigationManager.NavigateTo("/overlay");
+    }
+
+    private void GoToSettings()
+    {
+        _navigationManager.NavigateTo("/settings");
+    }
+}

@@ -1,6 +1,7 @@
 ﻿@page "/settings"
 @inject ILocalStorageService _localStorage
 @inject NavigationManager _navigationManager
+@inject IConfiguration _configuration
 
 <h3>Settings</h3>
 
@@ -40,6 +41,11 @@ status: @status
     private bool isConnected = false;
     private string _twitchRedirectUri = "https://localhost:7137/settings";
     private string status = "nothing";
+
+    protected override async Task OnInitializedAsync()
+    {
+        TacosSettings.TwitchClientId = _configuration["TwitchConfig:ClientId"];
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
