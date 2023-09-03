@@ -13,4 +13,4 @@ jobs:
               with:
                 global-json-file: global.json
             - run: dotnet build
-              working-directory: src\TacosChatSsr
+              working-directory: src/TacosChatSsr
