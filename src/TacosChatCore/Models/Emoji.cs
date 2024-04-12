@@ -2,7 +2,7 @@ namespace TacosChatCore.Models;
 
 public class Emoji
 {
-    public Dictionary<string, string> Source { get; set; } = new Dictionary<string, string>();
+    public Dictionary<string, string> Source { get; set; } = [];
 
     public Emoji()
     {
