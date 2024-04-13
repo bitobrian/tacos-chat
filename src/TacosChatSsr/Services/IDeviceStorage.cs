@@ -1,4 +1,4 @@
-﻿namespace TacosChatCore.Services;
+﻿namespace TacosChatSsr.Services;
 
 public interface IDeviceStorage
 {

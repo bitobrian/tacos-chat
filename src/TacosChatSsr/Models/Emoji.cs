@@ -1,4 +1,4 @@
-namespace TacosChatCore.Models;
+namespace TacosChatSsr.Models;
 
 public class Emoji
 {

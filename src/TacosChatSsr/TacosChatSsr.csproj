@@ -8,11 +8,8 @@
 
   <ItemGroup>
     <PackageReference Include="Blazored.LocalStorage" Version="4.4.0" />
+    <PackageReference Include="LiteDB" Version="5.0.19" />
     <PackageReference Include="TwitchLib.Client" Version="3.3.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\TacosChatCore\TacosChatCore.csproj" />
   </ItemGroup>
 
 </Project>

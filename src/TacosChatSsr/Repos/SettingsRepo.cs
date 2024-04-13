@@ -1,8 +1,8 @@
 ﻿using LiteDB;
-using TacosChatCore.Models;
-using TacosChatCore.Services;
+using TacosChatSsr.Models;
+using TacosChatSsr.Services;
 
-namespace TacosChatCore.Repos;
+namespace TacosChatSsr.Repos;
 
 public class SettingsRepo
 {

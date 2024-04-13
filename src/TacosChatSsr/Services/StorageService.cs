@@ -1,6 +1,4 @@
-﻿using TacosChatCore.Services;
-
-namespace TacosChatSsr;
+﻿namespace TacosChatSsr.Services;
 
 public class StorageService : IDeviceStorage
 {
