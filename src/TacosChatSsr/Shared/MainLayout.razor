@@ -9,5 +9,14 @@
 
 <PageTitle>TacosChatSsr</PageTitle>
 <main>
-    @Body
+    <ErrorBoundary>
+        <ChildContent>
+            @Body
+        </ChildContent>
+        <ErrorContent>
+            <div class="border p-4 text-danger">
+                Sorry about that, something seems to have gone awry.
+            </div>
+        </ErrorContent>
+    </ErrorBoundary>
 </main>

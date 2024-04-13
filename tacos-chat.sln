@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TacosChatSsr", "src\TacosCh
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TacosChatCore", "src\TacosChatCore\TacosChatCore.csproj", "{53874E4B-61D6-4AD6-A019-5480F5D293AB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TacosChat.Obs.Service", "src\TacosChat.Obs.Service\TacosChat.Obs.Service.csproj", "{797F06A4-DC2F-49A9-B210-6F27BED3A4E5}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,10 +21,6 @@ Global
 		{53874E4B-61D6-4AD6-A019-5480F5D293AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{53874E4B-61D6-4AD6-A019-5480F5D293AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{53874E4B-61D6-4AD6-A019-5480F5D293AB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{797F06A4-DC2F-49A9-B210-6F27BED3A4E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{797F06A4-DC2F-49A9-B210-6F27BED3A4E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{797F06A4-DC2F-49A9-B210-6F27BED3A4E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{797F06A4-DC2F-49A9-B210-6F27BED3A4E5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

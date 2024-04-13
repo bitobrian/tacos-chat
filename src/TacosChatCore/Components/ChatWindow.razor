@@ -2,6 +2,7 @@
 @inject ILocalStorageService _localStorage
 @inject NavigationManager _navigationManager
 @inject IJSRuntime _jsRuntime
+@inject SettingsRepo _settingsRepo
 
 <div class="window" style="@_windowStyleCss">
     <div class="title-bar">
@@ -55,6 +56,21 @@
     private string _windowStyleCss = "width: 100%; height: 100%;";
     private int _calculatedWindowHeight = 0;
 
+    private Settings _settings = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _settings = _settingsRepo.GetSettings("default");
+
+        if (_settings is null)
+            throw new Exception("Settings not available");
+
+        if (string.IsNullOrEmpty(_settings.TwitchUserAccessToken))
+            throw new Exception("Twitch not logged in.");
+
+        await Task.CompletedTask;
+    }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -65,11 +81,11 @@
 
             _windowStyleCss = $"width: 100%; height: {windowHeight}px;";
 
-            if (!string.IsNullOrEmpty(TacosSettings.TwitchUserAccessToken))
+            if (!string.IsNullOrEmpty(_settings.TwitchUserAccessToken))
             {
                 LogMessage("Settings not null");
 
-                var credentials = new ConnectionCredentials(TacosSettings.TwitchUserName, TacosSettings.TwitchUserAccessToken);
+                var credentials = new ConnectionCredentials(_settings.TwitchUserName, _settings.TwitchUserAccessToken);
                 var options = new ClientOptions
                     {
                         MessagesAllowedInPeriod = 750,

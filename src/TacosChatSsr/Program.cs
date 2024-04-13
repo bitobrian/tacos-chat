@@ -1,5 +1,7 @@
 using Blazored.LocalStorage;
 using TacosChatCore;
+using TacosChatCore.Services;
+using TacosChatSsr;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +10,8 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddCoreServices();
+
+builder.Services.AddSingleton<IDeviceStorage, StorageService>();
 
 var app = builder.Build();
 

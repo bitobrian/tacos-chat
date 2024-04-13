@@ -1,0 +1,48 @@
+﻿@page "/settings"
+@inject SettingsRepo _settingsRepo
+
+<style>
+    .settings {
+        display: grid;
+        grid-template-columns: auto auto;
+        gap: 10px;
+    }
+
+    .settings .key {
+        font-weight: bold;
+    }
+
+    .settings .value {
+        text-align: right;
+    }
+</style>
+
+<h3>Settings</h3>
+
+<div class="settings">
+    <div class="key">User name:</div>
+    <div class="value">@_settings.ProfileName</div>
+    <div class="key">Token:</div>
+    <div class="value">@_settings.TwitchUserAccessToken</div>
+    <div class="key">Client Id:</div>
+    <div class="value">@_settings.TwitchClientId</div>
+    <div class="key">Client Secret:</div>
+    <div class="value">@_settings.TwitchClientSecret</div>
+</div>
+
+@code
+{
+    private Settings _settings = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _settingsRepo.GetSettings("default");
+
+        await Task.CompletedTask;
+    }
+
+    private bool IsSecretSet()
+    {
+        return string.IsNullOrEmpty(_settings.TwitchClientSecret);
+    }
+}
