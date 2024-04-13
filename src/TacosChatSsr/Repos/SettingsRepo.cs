@@ -29,8 +29,8 @@ public class SettingsRepo
         using var db = new LiteDatabase(_dbPath);
         
         var settings = db.GetCollection<Settings>(SettingsCollectionName);
-        
-        var setting = settings.FindById(profileKey);
+
+        var setting = settings.FindOne(x => x.ProfileName == profileKey);
         
         return setting;
     }

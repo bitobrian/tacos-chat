@@ -3,6 +3,7 @@
 @inject NavigationManager _navigationManager
 @inject IJSRuntime _jsRuntime
 @inject SettingsRepo _settingsRepo
+@inject FakeChatService _fakeChatService
 
 <div class="window" style="@_windowStyleCss">
     <div class="title-bar">
@@ -46,6 +47,9 @@
 
 @code
 {
+    [CascadingParameter(Name = "ErrorContext")]
+    public ErrorContext errorContext { get; set; }
+
     private List<AppChatMessage> _messages = new();
     private int _messageCountMax = 25;
     private bool _isErrorState = false;
@@ -53,20 +57,47 @@
     private Emoji emoji = new();
     private string _windowStyleCss = "width: 100%; height: 100%;";
     private int _calculatedWindowHeight = 0;
-
     private Settings _settings = new();
+
+    private PeriodicTimer _timer;
+    private CancellationTokenSource _cts;
 
     protected override async Task OnInitializedAsync()
     {
         _settings = _settingsRepo.GetSettings("default");
 
         if (_settings is null)
-            throw new Exception("Settings not available");
+        {
+            errorContext.SetThrowError(new Exception("Settings are null"));
+        }
 
         if (string.IsNullOrEmpty(_settings.TwitchUserAccessToken))
-            throw new Exception("Twitch not logged in.");
+            errorContext.SetThrowError(new Exception("Twitch not logged in."));
+
+        if(!_settings.IsLive)
+        {
+            _cts = new CancellationTokenSource();
+
+            RunFakeChat();
+        }
 
         await Task.CompletedTask;
+    }
+
+    private async Task RunFakeChat()
+    {
+        var token = _cts.Token;
+        _timer = new PeriodicTimer(new TimeSpan(0, 0, 3));
+        while (await _timer.WaitForNextTickAsync(token))
+        {
+            var chatMessage = await _fakeChatService.GetFakeChatMessageAsync();
+            AddChatMessage(chatMessage.UserName, chatMessage.Message);
+        }
+    }
+
+    private void StopFakeChat()
+    {
+        _cts.Cancel();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -79,7 +110,7 @@
 
             _windowStyleCss = $"width: 100%; height: {windowHeight}px;";
 
-            if (!string.IsNullOrEmpty(_settings.TwitchUserAccessToken))
+            if (_settings.IsLive && !string.IsNullOrEmpty(_settings.TwitchUserAccessToken))
             {
                 LogMessage("Settings not null");
 

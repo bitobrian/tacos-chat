@@ -1,4 +1,5 @@
 using Blazored.LocalStorage;
+using TacosChatSsr.Models;
 using TacosChatSsr.Repos;
 using TacosChatSsr.Services;
 
@@ -8,9 +9,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddBlazoredLocalStorage();
+builder.Services.AddCascadingValue("ErrorContext", builder => new ErrorContext());
 builder.Services.AddSingleton<SettingsRepo>();
 
 builder.Services.AddSingleton<IDeviceStorage, StorageService>();
+
+builder.Services.AddSingleton<FakeChatService>();
 
 var app = builder.Build();
 
