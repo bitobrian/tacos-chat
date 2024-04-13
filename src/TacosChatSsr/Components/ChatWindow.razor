@@ -71,9 +71,6 @@
             errorContext.SetThrowError(new Exception("Settings are null"));
         }
 
-        if (string.IsNullOrEmpty(_settings.TwitchUserAccessToken))
-            errorContext.SetThrowError(new Exception("Twitch not logged in."));
-
         if(!_settings.IsLive)
         {
             _cts = new CancellationTokenSource();
@@ -87,7 +84,7 @@
     private async Task RunFakeChat()
     {
         var token = _cts.Token;
-        _timer = new PeriodicTimer(new TimeSpan(0, 0, 3));
+        _timer = new PeriodicTimer(new TimeSpan(0, 0, 0,0,300));
         while (await _timer.WaitForNextTickAsync(token))
         {
             var chatMessage = await _fakeChatService.GetFakeChatMessageAsync();
@@ -163,10 +160,6 @@
                 };
 
                 _client.Connect();
-            }
-            else
-            {
-                _isErrorState = true;
             }
 
             InvokeAsync(StateHasChanged);
